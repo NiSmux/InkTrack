@@ -1,0 +1,1052 @@
+{
+  "info": {
+    "_postman_id": "d7ef0118-a88e-44c0-a6a0-014e13a07ef1",
+    "name": "InkTrack API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58643550",
+    "_collection_link": "https://go.postman.co/collection/58643550-d7ef0118-a88e-44c0-a6a0-014e13a07ef1?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "All Books",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Response is an array\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.be.an(\"array\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Book has an id\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"id\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One book - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Created book has an id\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"id\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"genre_id\": 1,\r\n    \"title\": \"The Hobbit\",\r\n    \"author\": \"J. R. R. Tolkien\",\r\n    \"description\": \"Bilbo Baggins embarks on an unexpected adventure.\",\r\n    \"cover_image\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/books",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Book - Invalid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"genre_id\": 99999,\r\n    \"title\": \"\",\r\n    \"author\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/books",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"genre_id\": 1,\r\n    \"title\": \"Harry Potter and the Philosopher's Stone - Updated\",\r\n    \"author\": \"J. K. Rowling\",\r\n    \"description\": \"Updated description.\",\r\n    \"cover_image\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/books/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Book - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"genre_id\": 1,\r\n    \"title\": \"Test Book\",\r\n    \"author\": \"Test Author\",\r\n    \"description\": \"Test\",\r\n    \"cover_image\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/books/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Delete message exists\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Book - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/books/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "books",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Genres",
+      "item": [
+        {
+          "name": "All Genres",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Response is an array\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.be.an(\"array\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One Genre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Genre has required fields\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"id\");\r\n    pm.expect(data).to.have.property(\"name\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One Genre - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Genre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Created genre has an id\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Created genre has correct name\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data.name).to.eql(\"Science Fiction\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Science Fiction\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Genre - No name given",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {\r\n    pm.response.to.have.status(422);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Validation errors exist\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"errors\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Genre - Already Existing Genre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {\r\n    pm.response.to.have.status(422);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Validation errors exist\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"errors\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Fantasy\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/genres",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Genre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Genre was updated\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"id\");\r\n    pm.expect(data.name).to.eql(\"Science Fiction & Fantasy\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Science Fiction & Fantasy\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/genres/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Genre - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Science Fiction & Fantasy\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/genres/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Genre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Delete message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Genre - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/genres/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "genres",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "All Reviews",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Response is an array\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.be.an(\"array\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Review has required fields\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"id\");\r\n    pm.expect(data).to.have.property(\"user_id\");\r\n    pm.expect(data).to.have.property(\"book_id\");\r\n    pm.expect(data).to.have.property(\"rating\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "One Review - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Created review has an id\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Rating is correct\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(Number(data.rating)).to.eql(4.5);\r\n});\r\n\r\npm.test(\"Review contains user and book\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"user\");\r\n    pm.expect(data).to.have.property(\"book\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 1,\r\n    \"book_id\": 1,\r\n    \"rating\": 4.5,\r\n    \"comment\": \"Labai patiko ši knyga.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review - Invalid user id",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 99999,\r\n    \"book_id\": 1,\r\n    \"rating\": 4.5,\r\n    \"comment\": \"Test\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review - Invalid rating",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {\r\n    pm.response.to.have.status(422);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Validation errors exist\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"errors\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 1,\r\n    \"book_id\": 1,\r\n    \"rating\": 6,\r\n    \"comment\": \"Test\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review - Invalid rating increment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {\r\n    pm.response.to.have.status(422);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Validation errors exist\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"errors\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 1,\r\n    \"book_id\": 1,\r\n    \"rating\": 4.3,\r\n    \"comment\": \"Test\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Review was updated\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"id\");\r\n    pm.expect(Number(data.rating)).to.eql(5);\r\n    pm.expect(data.comment).to.eql(\"Atnaujintas komentaras.\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 1,\r\n    \"book_id\": 1,\r\n    \"rating\": 5.0,\r\n    \"comment\": \"Perskaičiau dar kartą ir patiko dar labiau.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Review - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 1,\r\n    \"book_id\": 1,\r\n    \"rating\": 5.0,\r\n    \"comment\": \"Perskaičiau dar kartą ir patiko dar labiau.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Review - Invalid rating increment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {\r\n    pm.response.to.have.status(422);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Validation errors exist\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"errors\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 1,\r\n    \"book_id\": 1,\r\n    \"rating\": 4.3,\r\n    \"comment\": \"Test\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Delete message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Review - Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n    pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Error message exists\", function () {\r\n    const data = pm.response.json();\r\n\r\n    pm.expect(data).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews/9999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api"
+    }
+  ]
+}

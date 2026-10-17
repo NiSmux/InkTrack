@@ -1,0 +1,628 @@
+openapi: 3.0.3
+
+info:
+  title: InkTrack API
+  description: REST API for the InkTrack book rating platform.
+  version: 1.0.0
+
+servers:
+  - url: http://127.0.0.1:8000/api/v1
+    description: Local Laravel development server
+
+tags:
+  - name: Books
+    description: Book management
+  - name: Genres
+    description: Genre management
+  - name: Reviews
+    description: Review management
+
+paths:
+
+  # =========================
+  # BOOKS
+  # =========================
+
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Get all books
+      description: Returns a list of all books with their genres.
+      responses:
+        '200':
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+
+    post:
+      tags:
+        - Books
+      summary: Create a book
+      description: Creates a new book.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+            example:
+              genre_id: 1
+              title: The Hobbit
+              author: J. R. R. Tolkien
+              description: Bilbo Baggins embarks on an unexpected adventure.
+              cover_image: null
+      responses:
+        '201':
+          description: Book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /books/{id}:
+    get:
+      tags:
+        - Books
+      summary: Get a book
+      description: Returns a single book by ID.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Book found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+    put:
+      tags:
+        - Books
+      summary: Update a book
+      description: Updates an existing book.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '200':
+          description: Book updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    delete:
+      tags:
+        - Books
+      summary: Delete a book
+      description: Deletes an existing book.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Book deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+  # =========================
+  # GENRES
+  # =========================
+
+  /genres:
+    get:
+      tags:
+        - Genres
+      summary: Get all genres
+      description: Returns a list of all genres.
+      responses:
+        '200':
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Genre'
+
+    post:
+      tags:
+        - Genres
+      summary: Create a genre
+      description: Creates a new genre.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreInput'
+            example:
+              name: Science Fiction
+      responses:
+        '201':
+          description: Genre created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /genres/{id}:
+    get:
+      tags:
+        - Genres
+      summary: Get a genre
+      description: Returns a single genre by ID together with its books.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Genre found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenreWithBooks'
+        '404':
+          description: Genre not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+    put:
+      tags:
+        - Genres
+      summary: Update a genre
+      description: Updates an existing genre.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreInput'
+      responses:
+        '200':
+          description: Genre updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Genre'
+        '404':
+          description: Genre not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    delete:
+      tags:
+        - Genres
+      summary: Delete a genre
+      description: Deletes an existing genre.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Genre deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '404':
+          description: Genre not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+  # =========================
+  # REVIEWS
+  # =========================
+
+  /reviews:
+    get:
+      tags:
+        - Reviews
+      summary: Get all reviews
+      description: Returns a list of all reviews with users and books.
+      responses:
+        '200':
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+
+    post:
+      tags:
+        - Reviews
+      summary: Create a review
+      description: Creates a new review for a book.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+            example:
+              user_id: 1
+              book_id: 1
+              rating: 4.5
+              comment: Labai patiko ši knyga.
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '422':
+          description: Validation error (unknown user or book, rating out of range or not in 0.5 steps, or the user has already reviewed this book)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /reviews/{id}:
+    get:
+      tags:
+        - Reviews
+      summary: Get a review
+      description: Returns a single review by ID.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Review found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+    put:
+      tags:
+        - Reviews
+      summary: Update a review
+      description: Updates an existing review.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Validation error (unknown user or book, rating out of range or not in 0.5 steps, or the user has already reviewed this book)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    delete:
+      tags:
+        - Reviews
+      summary: Delete a review
+      description: Deletes an existing review.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+
+components:
+
+  # =========================
+  # PARAMETERS
+  # =========================
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: Resource ID
+      schema:
+        type: integer
+        example: 1
+
+  # =========================
+  # SCHEMAS
+  # =========================
+
+  schemas:
+
+    BookInput:
+      type: object
+      required:
+        - genre_id
+        - title
+        - author
+      properties:
+        genre_id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          maxLength: 255
+          example: The Hobbit
+        author:
+          type: string
+          maxLength: 255
+          example: J. R. R. Tolkien
+        description:
+          type: string
+          nullable: true
+          example: Bilbo Baggins embarks on an unexpected adventure.
+        cover_image:
+          type: string
+          nullable: true
+          maxLength: 255
+          example: covers/hobbit.jpg
+
+    Book:
+      allOf:
+        - $ref: '#/components/schemas/BookInput'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+              example: 1
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+            genre:
+              $ref: '#/components/schemas/Genre'
+
+    GenreInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: Fantasy
+
+    Genre:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Fantasy
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    GenreWithBooks:
+      allOf:
+        - $ref: '#/components/schemas/Genre'
+        - type: object
+          properties:
+            books:
+              type: array
+              items:
+                $ref: '#/components/schemas/Book'
+
+    ReviewInput:
+      type: object
+      required:
+        - user_id
+        - book_id
+        - rating
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        book_id:
+          type: integer
+          example: 1
+        rating:
+          type: number
+          format: float
+          minimum: 1
+          maximum: 5
+          multipleOf: 0.5
+          example: 4.5
+        comment:
+          type: string
+          nullable: true
+          example: Labai patiko ši knyga.
+
+    Review:
+      type: object
+      required:
+        - id
+        - user_id
+        - book_id
+        - rating
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        book_id:
+          type: integer
+          example: 1
+        rating:
+          type: string
+          description: Decimal value serialized as a string (1.0 - 5.0, step 0.5).
+          example: "4.5"
+        comment:
+          type: string
+          nullable: true
+          example: Labai patiko ši knyga.
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        book:
+          $ref: '#/components/schemas/Book'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Test User
+        email:
+          type: string
+          format: email
+          example: test@example.com
+        role:
+          type: string
+          example: user
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DeleteResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Resource deleted successfully
+
+    NotFoundError:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Resource not found
+
+    ValidationError:
+      type: object
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            title:
+              - The title field is required.
+            rating:
+              - The rating must be in 0.5 increments.
