@@ -1,34 +1,29 @@
 openapi: 3.0.3
-
 info:
   title: InkTrack API
-  description: REST API for the InkTrack book rating platform.
+  description: REST API for the InkTrack book rating platform. Authentication uses JWT (Bearer token); the user's role (user / moderator / admin) is stored inside the token (claim `role`).
   version: 1.0.0
-
 servers:
-  - url: http://127.0.0.1:8000/api/v1
-    description: Local Laravel development server
-
+- url: http://127.0.0.1:8000/api/v1
+  description: Local Laravel development server
 tags:
-  - name: Books
-    description: Book management
-  - name: Genres
-    description: Genre management
-  - name: Reviews
-    description: Review management
-
+- name: Auth
+  description: Registration, login and logout
+- name: Users
+  description: User profiles and user management
+- name: Books
+  description: Book management
+- name: Genres
+  description: Genre management
+- name: Reviews
+  description: Review management
 paths:
-
-  # =========================
-  # BOOKS
-  # =========================
-
   /books:
     get:
       tags:
-        - Books
+      - Books
       summary: Get all books
-      description: Returns a list of all books with their genres.
+      description: Returns a list of all books with their genres. Public (no token required).
       responses:
         '200':
           description: List of books
@@ -38,12 +33,38 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Book'
-
+      parameters:
+      - name: search
+        in: query
+        required: false
+        description: Matches book title or author (partial, case-insensitive).
+        schema:
+          type: string
+        example: hobbit
+      - name: title
+        in: query
+        required: false
+        description: Filter by title (partial).
+        schema:
+          type: string
+      - name: author
+        in: query
+        required: false
+        description: Filter by author (partial).
+        schema:
+          type: string
+      - name: genre_id
+        in: query
+        required: false
+        description: Return only books of this genre.
+        schema:
+          type: integer
+        example: 1
     post:
       tags:
-        - Books
+      - Books
       summary: Create a book
-      description: Creates a new book.
+      description: 'Creates a new book. Requires role: **admin**.'
       requestBody:
         required: true
         content:
@@ -63,42 +84,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Book'
+        '401': &id001
+          $ref: '#/components/responses/Unauthorized'
+        '403': &id002
+          $ref: '#/components/responses/Forbidden'
         '422':
           description: Validation error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-
+      security: &id003
+      - bearerAuth: []
   /books/{id}:
     get:
       tags:
-        - Books
+      - Books
       summary: Get a book
-      description: Returns a single book by ID.
+      description: Returns a single book with its genre and reviews. Public.
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       responses:
         '200':
           description: Book found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
+                $ref: '#/components/schemas/BookDetail'
         '404':
           description: Book not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
-
     put:
       tags:
-        - Books
+      - Books
       summary: Update a book
-      description: Updates an existing book.
+      description: 'Updates an existing book. Requires role: **admin**.'
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       requestBody:
         required: true
         content:
@@ -112,6 +137,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Book'
+        '401': *id001
+        '403': *id002
         '404':
           description: Book not found
           content:
@@ -124,14 +151,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-
+      security: *id003
     delete:
       tags:
-        - Books
+      - Books
       summary: Delete a book
-      description: Deletes an existing book.
+      description: 'Deletes an existing book. Requires role: **admin**.'
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       responses:
         '200':
           description: Book deleted successfully
@@ -139,23 +166,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteResponse'
+        '401': *id001
+        '403': *id002
         '404':
           description: Book not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
-
-  # =========================
-  # GENRES
-  # =========================
-
+      security: *id003
   /genres:
     get:
       tags:
-        - Genres
+      - Genres
       summary: Get all genres
-      description: Returns a list of all genres.
+      description: Returns a list of all genres. Public (no token required).
       responses:
         '200':
           description: List of genres
@@ -165,12 +190,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Genre'
-
     post:
       tags:
-        - Genres
+      - Genres
       summary: Create a genre
-      description: Creates a new genre.
+      description: 'Creates a new genre. Requires role: **admin**.'
       requestBody:
         required: true
         content:
@@ -186,21 +210,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Genre'
+        '401': *id001
+        '403': *id002
         '422':
           description: Validation error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-
+      security: *id003
   /genres/{id}:
     get:
       tags:
-        - Genres
+      - Genres
       summary: Get a genre
-      description: Returns a single genre by ID together with its books.
+      description: Returns a single genre by ID together with its books. Public.
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       responses:
         '200':
           description: Genre found
@@ -214,14 +240,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
-
     put:
       tags:
-        - Genres
+      - Genres
       summary: Update a genre
-      description: Updates an existing genre.
+      description: 'Updates an existing genre. Requires role: **admin**.'
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       requestBody:
         required: true
         content:
@@ -235,6 +260,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Genre'
+        '401': *id001
+        '403': *id002
         '404':
           description: Genre not found
           content:
@@ -247,14 +274,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-
+      security: *id003
     delete:
       tags:
-        - Genres
+      - Genres
       summary: Delete a genre
-      description: Deletes an existing genre.
+      description: 'Deletes an existing genre. Requires role: **admin**.'
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       responses:
         '200':
           description: Genre deleted successfully
@@ -262,23 +289,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteResponse'
+        '401': *id001
+        '403': *id002
         '404':
           description: Genre not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
-
-  # =========================
-  # REVIEWS
-  # =========================
-
+      security: *id003
   /reviews:
     get:
       tags:
-        - Reviews
+      - Reviews
       summary: Get all reviews
-      description: Returns a list of all reviews with users and books.
+      description: Returns a list of all reviews with users and books. Public (no token required).
       responses:
         '200':
           description: List of reviews
@@ -288,20 +313,31 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
-
+      parameters:
+      - name: book_id
+        in: query
+        required: false
+        description: Return only reviews of this book.
+        schema:
+          type: integer
+      - name: user_id
+        in: query
+        required: false
+        description: Return only reviews written by this user.
+        schema:
+          type: integer
     post:
       tags:
-        - Reviews
+      - Reviews
       summary: Create a review
-      description: Creates a new review for a book.
+      description: Creates a review for a book. The author is taken from the JWT token (`user_id` is not sent). Requires any logged in user.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReviewInput'
+              $ref: '#/components/schemas/ReviewCreate'
             example:
-              user_id: 1
               book_id: 1
               rating: 4.5
               comment: Labai patiko ši knyga.
@@ -312,21 +348,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+        '401': *id001
         '422':
-          description: Validation error (unknown user or book, rating out of range or not in 0.5 steps, or the user has already reviewed this book)
+          description: Validation error (unknown book, rating out of range or not in 0.5 steps, or the user has already reviewed this book)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-
+      security: *id003
   /reviews/{id}:
     get:
       tags:
-        - Reviews
+      - Reviews
       summary: Get a review
-      description: Returns a single review by ID.
+      description: Returns a single review by ID. Public.
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       responses:
         '200':
           description: Review found
@@ -340,20 +377,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
-
     put:
       tags:
-        - Reviews
+      - Reviews
       summary: Update a review
-      description: Updates an existing review.
+      description: Updates a review. Only the author of the review can edit it.
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReviewInput'
+              $ref: '#/components/schemas/ReviewUpdate'
+            example:
+              rating: 5.0
+              comment: Perskaičiau dar kartą ir patiko dar labiau.
       responses:
         '200':
           description: Review updated successfully
@@ -361,6 +400,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+        '401': *id001
+        '403': *id002
         '404':
           description: Review not found
           content:
@@ -368,19 +409,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
         '422':
-          description: Validation error (unknown user or book, rating out of range or not in 0.5 steps, or the user has already reviewed this book)
+          description: Validation error (rating out of range or not in 0.5 steps)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-
+      security: *id003
     delete:
       tags:
-        - Reviews
+      - Reviews
       summary: Delete a review
-      description: Deletes an existing review.
+      description: Deletes a review. Allowed for the author, moderators and administrators.
       parameters:
-        - $ref: '#/components/parameters/Id'
+      - $ref: '#/components/parameters/Id'
       responses:
         '200':
           description: Review deleted successfully
@@ -388,20 +429,247 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteResponse'
+        '401': *id001
+        '403': *id002
         '404':
           description: Review not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundError'
-
-
+      security: *id003
+  /auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Register
+      description: Creates a new account. The role is always `user` (a `role` field in the body is ignored). Returns a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+            example:
+              name: Jonas
+              email: jonas@example.com
+              password: password123
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+  /auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Login
+      description: Returns a JWT token; the user's role is stored inside the token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+            example:
+              email: test@example.com
+              password: password123
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+  /auth/me:
+    get:
+      tags:
+      - Auth
+      summary: Current user
+      description: Returns the user identified by the token.
+      security: *id003
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401': *id001
+  /auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: Logout
+      description: Invalidates the current token.
+      security: *id003
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401': *id001
+  /users:
+    get:
+      tags:
+      - Users
+      summary: Get all users
+      description: 'Returns all users with e-mails and roles. Requires role: **admin**.'
+      security: *id003
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401': *id001
+        '403': *id002
+  /users/{id}:
+    get:
+      tags:
+      - Users
+      summary: Get a user profile
+      description: Public profile (name, role and written reviews; no e-mail). Public.
+      parameters:
+      - &id004
+        $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+    put:
+      tags:
+      - Users
+      summary: Update own profile
+      description: Updates name, e-mail and/or password. Only the owner of the profile can edit it; role cannot be changed here.
+      parameters:
+      - *id004
+      security: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateInput'
+            example:
+              name: Jonas Jonaitis
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401': *id001
+        '403': *id002
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+    delete:
+      tags:
+      - Users
+      summary: Delete a user
+      description: 'Deletes an account (and its reviews). Requires role: **admin**. Administrators cannot delete themselves.'
+      parameters:
+      - *id004
+      security: *id003
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '401': *id001
+        '403': *id002
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+  /users/{id}/role:
+    put:
+      tags:
+      - Users
+      summary: Change a user's role
+      description: 'Requires role: **admin**. Administrators cannot change their own role. New role is applied to tokens issued after the change.'
+      parameters:
+      - *id004
+      security: *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleInput'
+            example:
+              role: moderator
+      responses:
+        '200':
+          description: Role changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401': *id001
+        '403': *id002
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
 components:
-
-  # =========================
-  # PARAMETERS
-  # =========================
-
   parameters:
     Id:
       name: id
@@ -411,19 +679,13 @@ components:
       schema:
         type: integer
         example: 1
-
-  # =========================
-  # SCHEMAS
-  # =========================
-
   schemas:
-
     BookInput:
       type: object
       required:
-        - genre_id
-        - title
-        - author
+      - genre_id
+      - title
+      - author
       properties:
         genre_id:
           type: integer
@@ -445,41 +707,38 @@ components:
           nullable: true
           maxLength: 255
           example: covers/hobbit.jpg
-
     Book:
       allOf:
-        - $ref: '#/components/schemas/BookInput'
-        - type: object
-          required:
-            - id
-          properties:
-            id:
-              type: integer
-              example: 1
-            created_at:
-              type: string
-              format: date-time
-            updated_at:
-              type: string
-              format: date-time
-            genre:
-              $ref: '#/components/schemas/Genre'
-
+      - $ref: '#/components/schemas/BookInput'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: integer
+            example: 1
+          created_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
+          genre:
+            $ref: '#/components/schemas/Genre'
     GenreInput:
       type: object
       required:
-        - name
+      - name
       properties:
         name:
           type: string
           maxLength: 255
           example: Fantasy
-
     Genre:
       type: object
       required:
-        - id
-        - name
+      - id
+      - name
       properties:
         id:
           type: integer
@@ -493,49 +752,22 @@ components:
         updated_at:
           type: string
           format: date-time
-
     GenreWithBooks:
       allOf:
-        - $ref: '#/components/schemas/Genre'
-        - type: object
-          properties:
-            books:
-              type: array
-              items:
-                $ref: '#/components/schemas/Book'
-
-    ReviewInput:
-      type: object
-      required:
-        - user_id
-        - book_id
-        - rating
-      properties:
-        user_id:
-          type: integer
-          example: 1
-        book_id:
-          type: integer
-          example: 1
-        rating:
-          type: number
-          format: float
-          minimum: 1
-          maximum: 5
-          multipleOf: 0.5
-          example: 4.5
-        comment:
-          type: string
-          nullable: true
-          example: Labai patiko ši knyga.
-
+      - $ref: '#/components/schemas/Genre'
+      - type: object
+        properties:
+          books:
+            type: array
+            items:
+              $ref: '#/components/schemas/Book'
     Review:
       type: object
       required:
-        - id
-        - user_id
-        - book_id
-        - rating
+      - id
+      - user_id
+      - book_id
+      - rating
       properties:
         id:
           type: integer
@@ -549,7 +781,7 @@ components:
         rating:
           type: string
           description: Decimal value serialized as a string (1.0 - 5.0, step 0.5).
-          example: "4.5"
+          example: '4.5'
         comment:
           type: string
           nullable: true
@@ -561,10 +793,9 @@ components:
           type: string
           format: date-time
         user:
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/UserSummary'
         book:
           $ref: '#/components/schemas/Book'
-
     User:
       type: object
       properties:
@@ -580,6 +811,10 @@ components:
           example: test@example.com
         role:
           type: string
+          enum:
+          - user
+          - moderator
+          - admin
           example: user
         created_at:
           type: string
@@ -587,30 +822,27 @@ components:
         updated_at:
           type: string
           format: date-time
-
     DeleteResponse:
       type: object
       required:
-        - message
+      - message
       properties:
         message:
           type: string
           example: Resource deleted successfully
-
     NotFoundError:
       type: object
       required:
-        - message
+      - message
       properties:
         message:
           type: string
           example: Resource not found
-
     ValidationError:
       type: object
       required:
-        - message
-        - errors
+      - message
+      - errors
       properties:
         message:
           type: string
@@ -623,6 +855,214 @@ components:
               type: string
           example:
             title:
-              - The title field is required.
+            - The title field is required.
             rating:
-              - The rating must be in 0.5 increments.
+            - The rating must be in 0.5 increments.
+    MessageResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Test User
+    RegisterInput:
+      type: object
+      required:
+      - name
+      - email
+      - password
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          minLength: 8
+          format: password
+    LoginInput:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    TokenResponse:
+      type: object
+      required:
+      - access_token
+      - token_type
+      - expires_in
+      - user
+      properties:
+        access_token:
+          type: string
+          description: JWT; payload contains sub, role, iat, exp, jti
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Seconds
+          example: 3600
+        user:
+          $ref: '#/components/schemas/User'
+    UserUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          format: password
+    RoleInput:
+      type: object
+      required:
+      - role
+      properties:
+        role:
+          type: string
+          enum:
+          - user
+          - moderator
+          - admin
+    ReviewCreate:
+      type: object
+      required:
+      - book_id
+      - rating
+      properties:
+        book_id:
+          type: integer
+          example: 1
+        rating:
+          type: number
+          format: float
+          minimum: 1
+          maximum: 5
+          multipleOf: 0.5
+          example: 4.5
+        comment:
+          type: string
+          nullable: true
+          example: Labai patiko ši knyga.
+    ReviewUpdate:
+      type: object
+      required:
+      - rating
+      properties:
+        rating:
+          type: number
+          format: float
+          minimum: 1
+          maximum: 5
+          multipleOf: 0.5
+          example: 5.0
+        comment:
+          type: string
+          nullable: true
+    ReviewWithBook:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        book_id:
+          type: integer
+        rating:
+          type: string
+          example: '4.5'
+        comment:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        book:
+          type: object
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+            author:
+              type: string
+    BookDetail:
+      allOf:
+      - $ref: '#/components/schemas/Book'
+      - type: object
+        properties:
+          reviews:
+            type: array
+            items:
+              $ref: '#/components/schemas/Review'
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+          enum:
+          - user
+          - moderator
+          - admin
+        created_at:
+          type: string
+          format: date-time
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewWithBook'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT obtained from POST /auth/login. The payload contains the claim `role`.
+  responses:
+    Unauthorized:
+      description: Missing, invalid, expired or revoked token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Unauthenticated. A Bearer token is required.
+    Forbidden:
+      description: The role in the token does not allow this action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: 'Forbidden. Required role: admin.'

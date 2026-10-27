@@ -8,29 +8,46 @@ use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    // 1. GET /api/books
-    public function index()
+    // GET /api/v1/books  (public; optional filters: search, title, author, genre_id)
+    public function index(Request $request)
     {
-        $books = Book::with('genre')->get();
+        $query = Book::with('genre')->orderBy('id');
 
-        return response()->json($books, 200);
+        if ($search = $request->query('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('author', 'like', "%{$search}%");
+            });
+        }
+
+        if ($title = $request->query('title')) {
+            $query->where('title', 'like', "%{$title}%");
+        }
+
+        if ($author = $request->query('author')) {
+            $query->where('author', 'like', "%{$author}%");
+        }
+
+        if ($genreId = $request->query('genre_id')) {
+            $query->where('genre_id', $genreId);
+        }
+
+        return response()->json($query->get(), 200);
     }
 
-    // 2. GET /api/books/{id}
+    // GET /api/v1/books/{id}  (public; includes reviews with author id+name only)
     public function show($id)
     {
-        $book = Book::with('genre')->find($id);
+        $book = Book::with(['genre', 'reviews.user:id,name'])->find($id);
 
         if (!$book) {
-            return response()->json([
-                'message' => 'Book not found'
-            ], 404);
+            return response()->json(['message' => 'Book not found'], 404);
         }
 
         return response()->json($book, 200);
     }
 
-    // 3. POST /api/books
+    // POST /api/v1/books  (admin only)
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -43,21 +60,16 @@ class BookController extends Controller
 
         $book = Book::create($validated);
 
-        return response()->json(
-            $book->load('genre'),
-            201
-        );
+        return response()->json($book->load('genre'), 201);
     }
 
-    // 4. PUT /api/books/{id}
+    // PUT /api/v1/books/{id}  (admin only)
     public function update(Request $request, $id)
     {
         $book = Book::find($id);
 
         if (!$book) {
-            return response()->json([
-                'message' => 'Book not found'
-            ], 404);
+            return response()->json(['message' => 'Book not found'], 404);
         }
 
         $validated = $request->validate([
@@ -70,27 +82,20 @@ class BookController extends Controller
 
         $book->update($validated);
 
-        return response()->json(
-            $book->load('genre'),
-            200
-        );
+        return response()->json($book->load('genre'), 200);
     }
 
-    // 5. DELETE /api/books/{id}
+    // DELETE /api/v1/books/{id}  (admin only)
     public function destroy($id)
     {
         $book = Book::find($id);
 
         if (!$book) {
-            return response()->json([
-                'message' => 'Book not found'
-            ], 404);
+            return response()->json(['message' => 'Book not found'], 404);
         }
 
         $book->delete();
 
-        return response()->json([
-            'message' => 'Book deleted successfully'
-        ], 200);
+        return response()->json(['message' => 'Book deleted successfully'], 200);
     }
 }
